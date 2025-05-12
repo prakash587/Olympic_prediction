@@ -49,3 +49,26 @@ def country_year_list(df):
     country.insert(0, 'overall')
 
     return years, country
+
+def data_over_time(df,col):
+    nations_over_time = (
+        df.drop_duplicates(['Year', col])['Year']
+        .value_counts().reset_index(name= col)
+        .rename(columns={'Year': 'Edition'})
+        .sort_values('Edition')
+    )
+    return nations_over_time
+
+
+def most_successful(df, sport):
+    temp_df = df.dropna(subset=['Medal'])
+
+    if sport != 'overall':
+        temp_df = temp_df[temp_df['Sport'] == sport]
+
+    top_athletes = temp_df['Name'].value_counts().reset_index()
+    top_athletes.columns = ['Name', 'Medal Count']  # Rename for clarity
+
+    merged_df = top_athletes.head(15).merge(df, on='Name', how='left')
+
+    return merged_df[['Name', 'Medal Count', 'Sport', 'region']].drop_duplicates()
